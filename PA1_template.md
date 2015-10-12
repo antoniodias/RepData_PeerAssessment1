@@ -10,7 +10,8 @@ output:
 
 1,2 - To load the data and process the date we can do the following:
 
-```{r initialprocess}
+
+```r
 data <- read.csv(unz("activity.zip","activity.csv"), 
                  colClasses = c("numeric","Date","numeric"))
 
@@ -29,48 +30,58 @@ for (i in 1:length(unique(data$interval))){
     StepsperInterval[i,1] <-unique(data$interval)[i]
     StepsperInterval[i,2] <-mean(cachedata$steps, na.rm=T)
 }
-
-
 ```
 
 ## What is mean total number of steps taken per day?
 1 - To get the mean total of steps taken per day we have to:
 
-```{r perDay}
-plot(StepsperDay$date,StepsperDay$steps, type="h", xlab="Date", ylab="Steps")
-meanSteps <- as.character(round(mean(StepsperDay$steps,na.rm=T), digits = 0))
-medianSteps <- as.character(round(median(StepsperDay$steps,na.rm=T), digits=0))
 
+```r
+plot(StepsperDay$date,StepsperDay$steps, type="h", xlab="Date", ylab="Steps")
 ```
 
-2 - So the average number of steps per day is `r meanSteps ` , while the median number of steps per day is `r medianSteps `.
+![plot of chunk perDay](figure/perDay-1.png) 
+
+```r
+meanSteps <- as.character(round(mean(StepsperDay$steps,na.rm=T), digits = 0))
+medianSteps <- as.character(round(median(StepsperDay$steps,na.rm=T), digits=0))
+```
+
+2 - So the average number of steps per day is 10766 , while the median number of steps per day is 10765.
 
 ## What is the average daily activity pattern?
 1 - The average daily activity patter is this:
 
-```{r perInterval}
+
+```r
 plot(StepsperInterval$interval,StepsperInterval$steps, type="l",
      xlab="Interval", ylab="Steps")
+```
+
+![plot of chunk perInterval](figure/perInterval-1.png) 
+
+```r
 maxInterval <- StepsperInterval[order(-StepsperInterval$steps),]
 maxInterval <- maxInterval[1,1]
 ```
 
-2 - The 5 minute interval with the highest number of steps starts at `r maxInterval`
+2 - The 5 minute interval with the highest number of steps starts at 835
 minutes.
 
 ## Imputing missing values
 1 - To get the number of missing cases we can do this:
 
-```{r NA detect}
-sumNA <- sum(is.na(data))
 
+```r
+sumNA <- sum(is.na(data))
 ```
-So we have `r sumNA` cases with missing observations.
+So we have 2304 cases with missing observations.
 
 2,3 - To deal with this issue we will substitute any missing observation with the average number of steps 
 taken in that period.
 
-```{r NA Substitute}
+
+```r
 newData <- data
 for (i in 1:length(data$steps)){
     if (is.na(data[i,1])== T){
@@ -89,20 +100,27 @@ for (i in 1:length(unique(newData$date))){
 
 4 - With the new data without missing observations we can plot again the average number of steps taken each day.
 
-```{r perDayNA}
+
+```r
 plot(StepsperDayNA$date,StepsperDayNA$steps, type="h", xlab="Date", ylab="Steps")
 lines(StepsperDayNA$date,StepsperDay$steps, col="red")
+```
+
+![plot of chunk perDayNA](figure/perDayNA-1.png) 
+
+```r
 meanStepsNA <- as.character(round(mean(StepsperDayNA$steps,na.rm=T)))
 medianStepsNA <- as.character(round(median(StepsperDayNA$steps,na.rm=T), digits=0))
 ```
-In this dataset the average number of steps per day is `r meanStepsNA ` , while the median number of steps per day is `r medianStepsNA `. Which means there is no difference in the mean value, but there was a change in the median value from `r medianSteps` to `r medianStepsNA`.
+In this dataset the average number of steps per day is 10766 , while the median number of steps per day is 10766. Which means there is no difference in the mean value, but there was a change in the median value from 10765 to 10766.
 
 There is no signficant change in the data. This can be seen by the red line that represents the values before NA have been recalculated.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 1 - First we need to seperate weekdays from the weekend. We do the following:
 
-```{r weekend split}
+
+```r
 newData$weekday <- weekdays(newData$date, abbreviate = T)
 
 for (i in 1:nrow(newData)){
@@ -113,13 +131,12 @@ for (i in 1:nrow(newData)){
         newData$weekend[i] <- "weekday"
     }
 }
-
-
 ```
 
 2 - The we can calculate the average paces per interval in the weekdays and weekends. And plot them.
 
-```{r plotting wekkend}
+
+```r
 StepsperIntervalWeekend <- data.frame(interval = integer(),steps=integer(),
                                       weekend=integer())
 for (i in 1:length(unique(newData$interval))){
@@ -146,6 +163,8 @@ weekendplot <- xyplot(steps~interval|factor(weekend), data=StepsperIntervalWeeke
 
 weekendplot
 ```
+
+![plot of chunk plotting wekkend](figure/plotting wekkend-1.png) 
 
 
 
